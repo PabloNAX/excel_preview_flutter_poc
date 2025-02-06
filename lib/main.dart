@@ -17,7 +17,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // Передаём корректный путь к файлу
       home: const ExcelViewer(filePath: 'assets/existing_excel_file.xlsx'),
     );
   }
@@ -41,20 +40,17 @@ class _ExcelViewerState extends State<ExcelViewer> {
     readExcel();
   }
 
-  /// Читаем Excel-файл из assets и сохраняем данные в список списков.
   void readExcel() async {
     try {
-      // Загружаем файл из assets с правильным именем и расширением
       ByteData data = await rootBundle.load(widget.filePath);
       var bytes =
           data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
       var excel = Excel.decodeBytes(bytes);
 
       List<List<dynamic>> rows = [];
-      // Обходим все листы Excel (если их несколько)
+
       for (var table in excel.tables.keys) {
         for (var row in excel.tables[table]!.rows) {
-          // Если ячейка null, заменяем её на пустую строку
           rows.add(row.map((cell) => cell?.value ?? '').toList());
         }
       }
@@ -62,8 +58,7 @@ class _ExcelViewerState extends State<ExcelViewer> {
         excelData = rows;
       });
     } catch (e) {
-      // В случае ошибки выводим сообщение
-      debugPrint("Ошибка чтения Excel-файла: $e");
+      debugPrint("reading error Excel: $e");
       setState(() {
         excelData = [];
       });
@@ -72,7 +67,6 @@ class _ExcelViewerState extends State<ExcelViewer> {
 
   @override
   Widget build(BuildContext context) {
-    // Если данные ещё не загружены, показываем индикатор загрузки
     if (excelData.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text("Excel Viewer")),
@@ -80,7 +74,6 @@ class _ExcelViewerState extends State<ExcelViewer> {
       );
     }
 
-    // Предполагаем, что первая строка – заголовки, остальные – данные
     final headers = excelData.first;
     final dataRows = excelData.sublist(1);
 
